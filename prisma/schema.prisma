@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Investor {
+  id          String   @id @default(uuid())
+  displayName String   @map("display_name")
+  hashedCode  String   @map("hashed_code")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  deposits    Deposit[]
+  withdrawals Withdrawal[]
+
+  @@map("investors")
+}
+
+model Deposit {
+  id                      String   @id @default(uuid())
+  investorId              String   @map("investor_id")
+  amount                  Float
+  share                   Float    // The calculated share of the pool at time of deposit
+  capitalReferenceAtDeposit Float   @map("capital_reference") // Total capital of the pool BEFORE this deposit
+  createdAt               DateTime @default(now()) @map("created_at")
+
+  investor Investor @relation(fields: [investorId], references: [id])
+
+  @@map("deposits")
+}
+
+model Withdrawal {
+  id          String   @id @default(uuid())
+  investorId  String   @map("investor_id")
+  amount      Float
+  shareBurned Float    @map("share_burned") // How much share was removed
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  investor Investor @relation(fields: [investorId], references: [id])
+
+  @@map("withdrawals")
+}
+
+model CapitalSnapshot {
+  id            String   @id @default(uuid())
+  totalUsdt     Float    @map("total_usdt")
+  totalEur      Float    @map("total_eur")
+  cumulativePnl Float    @map("cumulative_pnl")
+  roi           Float
+  drawdown      Float
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@map("capital_snapshots")
+}
+
+model FuturesTrade {
+  id        String   @id @default(uuid())
+  pair      String
+  side      String
+  pnl       Float
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("futures_trades")
+}
