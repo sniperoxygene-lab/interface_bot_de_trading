@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { getCurrentTotalCapital } from '@/lib/utils';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 // Get Investors
 export async function GET() {
